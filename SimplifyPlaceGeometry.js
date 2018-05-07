@@ -2,16 +2,16 @@
 // ==UserScript==
 // @name         WME Simplify Place Geometry
 // @description  Simplifies geometry of area places in WME
-// @version      1.1.3
+// @version      2018.05.07.01
 // @author       SAR85
 // @copyright	 SAR85
 // @license		 CC BY-NC-ND
 // @grant		 none
-// @include      https://www.waze.com/editor/*
-// @include      https://www.waze.com/*/editor/*
-// @include      https://editor-beta.waze.com/*
-// @namespace 	 https://greasyfork.org/users/9321
-// @require		    https://greasyfork.org/scripts/9794-wlib/code/wLib.js?version=106259
+// @include      https://www.waze.com/editor*
+// @include      https://www.waze.com/*/editor*
+// @include      https://beta.waze.com/*
+// @namespace 	 https://greasyfork.org/en/scripts/367660-wme-simplify-place-geometry
+// @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // ==/UserScript==
 /* global W */
 /* global OpenLayers */
@@ -21,7 +21,7 @@
     /* Global vars */
     var DEFAULT_SIMPLIFICATION_FACTOR = 5;
     var simplify;
-    var simplifyVersion = '1.1.3';
+    var simplifyVersion = '2018.05.07.01';
     var simplifyChanges = 'WME Simplify Area Geometry has been updated to version ' +
         simplifyVersion + '.\n' +
         '[*] Updated for editor compatibility.';
@@ -29,8 +29,8 @@
     var UpdateObject = require('Waze/Action/UpdateObject');
 
     function simpBootstrap() {
-        if (window.W && window.W.loginManager && window.W.loginManager.events &&
-            window.W.loginManager.events.register && window.$ &&
+        if (W && W.loginManager && W.loginManager.events &&
+            W.loginManager.events.register && $ && WazeWrap.Ready &&
             $('#map').size()) {
             simpInit();
         } else {
@@ -193,8 +193,8 @@
         });
         W.selectionManager.events.register('selectionchanged', null,
             function () {
-                if (W.selectionManager.hasSelectedItems()) {
-                    var selectedItem = W.selectionManager.selectedItems[0].model;
+                if (W.selectionManager.hasSelectedFeatures()) {
+                    var selectedItem = W.selectionManager.getSelectedFeatures()[0].model;
                     if (!(selectedItem.geometry instanceof OpenLayers.Geometry.Polygon)) {
                         return;
                     }
@@ -205,10 +205,10 @@
             });
 
         /* Shortcut key = shift+j for simplifying */
-        new wLib.Interface.Shortcut('simplifyFeatureGeometry', 'editing', 'S+j', simplifyFeatureGeometry, this).add();
+        new WazeWrap.Interface.Shortcut('simplifyFeatureGeometry', 'editing', 'S+j', simplifyFeatureGeometry, this).add();
 
         /* Shortcut key = ctrl+shift+j for clearing */
-        new wLib.Interface.Shortcut('clearFeatureGeometry', 'editing', 'CS+j', clearFeatureGeometry, this).add();
+        new WazeWrap.Interface.Shortcut('clearFeatureGeometry', 'editing', 'CS+j', clearFeatureGeometry, this).add();
 
         console.log('WME Simplify Area Geometry Initialized');
 
@@ -220,13 +220,13 @@
     }
 
     function simplifyFeatureGeometry(e) {
-        var place = W.selectionManager.selectedItems[0];
+        var place = W.selectionManager.getSelectedFeatures()[0];
         var oldGeometry = place.geometry.clone();
         var newGeometry = oldGeometry.clone();
 
-        if (!W.selectionManager.hasSelectedItems() || W.selectionManager.selectedItems[0].model.type !== 'venue' ||
-            !W.selectionManager.selectedItems[0].model.isGeometryEditable() ||
-            !(W.selectionManager.selectedItems[0].model.geometry instanceof OpenLayers.Geometry.Polygon)) {
+        if (!W.selectionManager.hasSelectedFeatures() || W.selectionManager.getSelectedFeatures()[0].model.type !== 'venue' ||
+            !W.selectionManager.getSelectedFeatures()[0].model.isGeometryEditable() ||
+            !(W.selectionManager.getSelectedFeatures[0].model.geometry instanceof OpenLayers.Geometry.Polygon)) {
             return;
         }
         e = $('#simpE').val() || DEFAULT_SIMPLIFICATION_FACTOR;
@@ -252,17 +252,17 @@
     function clearFeatureGeometry() {
         var newGeometry,
             navAction;
-        var venue = W.selectionManager.selectedItems[0].model;
+        var venue = W.selectionManager.getSelectedFeatures()[0].model;
         var newEntryExitPoint = {
             entry: true,
             exit: true
         };
         var oldGeometry = venue.geometry;
 
-        if (!W.selectionManager.hasSelectedItems() ||
-            W.selectionManager.selectedItems[0].model.type !== 'venue' ||
-            !W.selectionManager.selectedItems[0].model.isGeometryEditable() ||
-            !(W.selectionManager.selectedItems[0].model.geometry instanceof
+        if (!W.selectionManager.hasSelectedFeatures() ||
+            W.selectionManager.getSelectedFeatures()[0].model.type !== 'venue' ||
+            !W.selectionManager.getSelectedFeatures()[0].model.isGeometryEditable() ||
+            !(W.selectionManager.getSelectedFeatures()[0].model.geometry instanceof
                 OpenLayers.Geometry.Polygon)) {
             return;
         }
