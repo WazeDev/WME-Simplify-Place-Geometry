@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         WME Simplify Place Geometry
 // @description  Simplifies geometry of area places in WME
-// @version      2018.05.07.01
+// @version      2018.05.07.02
 // @author       SAR85
 // @copyright	 SAR85
 // @license		 CC BY-NC-ND
@@ -226,7 +226,7 @@
 
         if (!W.selectionManager.hasSelectedFeatures() || W.selectionManager.getSelectedFeatures()[0].model.type !== 'venue' ||
             !W.selectionManager.getSelectedFeatures()[0].model.isGeometryEditable() ||
-            !(W.selectionManager.getSelectedFeatures[0].model.geometry instanceof OpenLayers.Geometry.Polygon)) {
+            !(W.selectionManager.getSelectedFeatures()[0].model.geometry instanceof OpenLayers.Geometry.Polygon)) {
             return;
         }
         e = $('#simpE').val() || DEFAULT_SIMPLIFICATION_FACTOR;
